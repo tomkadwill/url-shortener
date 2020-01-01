@@ -5,6 +5,7 @@
     "database": "urlshortener",
     "host": "localhost",
     "dialect": "postgres",
-    "operatorsAliases": false
+    "operatorsAliases": false,
+    "use_env_variable": "DATABASE_URL"
   }
 }
