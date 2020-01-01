@@ -2,6 +2,7 @@ const express = require('express');
 const app = express();
 const path = require('path');
 const port = process.env.PORT || 3000;
+const exphbs  = require('express-handlebars');
 const urlShortener = require('node-url-shortener');
 const Sequelize = require('sequelize');
 const bodyParser = require('body-parser');
@@ -14,9 +15,16 @@ const sequelize = new Sequelize('urlshortener', 'tomkadwill', 'password', {
 
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(express.urlencoded());
+app.engine('handlebars', exphbs());
+app.set('view engine', 'handlebars');
 
 app.get('/', function(req, res) {
-  res.sendFile(path.join(__dirname + '/index.html'));
+  db.Url.findAll({order: [['createdAt', 'DESC']], limit: 5})
+        .then(urlObjs => {
+          res.render('index', {
+            urlObjs: urlObjs
+          });
+        });
 });
 
 app.post('/url', function(req, res) {
@@ -25,7 +33,7 @@ app.post('/url', function(req, res) {
   urlShortener.short(url, function(err, shortUrl) {
     db.Url.findOrCreate({where: {url: url, shortUrl: shortUrl}})
           .then(([urlObj, created]) => {
-            res.send(shortUrl)
+            res.redirect('/');
           });
   });
 });
